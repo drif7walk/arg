@@ -1,0 +1,57 @@
+<?php
+
+function establish()
+{
+	try {
+	$conn = new PDO("mysql:host=localhost;dbname=site;charset=utf8", "board", "");
+	} catch (PDOException $pe)
+	{
+		die("ERROR: " . $pe->getMessage());
+	}
+	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+	return $conn;
+}
+
+function tick($addto) 
+{
+	
+	$conn = establish();	
+
+	try {
+	// First check for existing ip entries
+	$sql = "SELECT * FROM `postluck` WHERE `ip`=:ipaddr";
+	$q = $conn->prepare($sql);
+	$q->bindValue(":ipaddr", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+	$q->execute();
+	$result = $q->fetch(PDO::FETCH_ASSOC);
+	$nofile = 0;
+	if (!$result) //If does not exist then create.
+	{
+        	
+		$sql = "INSERT INTO `postluck` (`id`, `ip`) VALUES (NULL, :ip)";
+		$q = $conn->prepare($sql);
+		$q->bindValue(":ip", $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
+		$q->execute();
+	}
+
+	$sql = "UPDATE `postluck` SET `_addto_`=`_addto_`+1 WHERE `ip`=:addr";
+	$sql = str_replace("_addto_",$addto,$sql);	
+	$q = $conn->prepare($sql);
+	$q->execute(array(':addr'=>$_SERVER["REMOTE_ADDR"]));
+	
+	} catch (PDOEXCEPTION $e)
+	{
+		//XXX
+		die("ERROR: " . $e->getMessage());
+	}
+
+}
+
+function num2lv($num)
+{
+	$str = (string)$num;
+	return $str;
+}
+?>

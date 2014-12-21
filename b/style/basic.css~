@@ -1,0 +1,45 @@
+body
+{
+font-family: "arial";
+}
+
+.title {
+text-align: center;
+font-size: large;
+font-weight: bold;
+}
+.about {
+text-align: center;
+font-size: x-small;
+}
+.textarea {
+width: 99%;
+}
+
+.postbox {
+margin-left: auto;
+margin-right: auto;
+width: 100%;
+}
+
+table.postbox td {
+background-color: #AAAAAA;
+}
+.replybox {
+background-color: #E9E9E9;
+margin-bottom: 6px;
+}
+table.replytable td {
+vertical-align: top;
+}
+
+.image {
+width: 128px;
+height: auto;
+	
+}
+
+.video {
+width: 256px;
+height: auto;
+}

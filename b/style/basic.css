@@ -1,0 +1,84 @@
+body
+{
+font-family: "arial";
+}
+
+p {
+word-break: break-all;
+margin: 0px;
+}
+
+a:visited {
+color: #FF0000
+}
+
+a:link {
+color: #FF0000
+}
+
+.title {
+text-align: center;
+font-size: large;
+font-weight: bold;
+}
+.about {
+text-align: center;
+font-size: xx-small;
+}
+.textarea {
+width: 98.5%;
+height: 79px;
+}
+
+.postboxcontainer {
+width: 480px;
+margin-left: auto;
+margin-right: auto;
+}
+
+.postscontainer {
+width: 800px;
+margin-left: auto;
+margin-right: auto;
+}
+
+.postbox {
+margin-left: auto;
+margin-right: auto;
+width: 100%;
+}
+
+.postid {
+
+}
+
+table.postbox td {
+background-color: #AAAAAA;
+}
+.replybox {
+background-color: #E9E9E9;
+border-bottom: solid 1px #DADADA;
+margin-bottom: 3px;
+}
+table.replytable td {
+vertical-align: top;
+}
+
+.image {
+width: 128px;
+height: auto;
+	
+}
+
+.video {
+width: 256px;
+height: auto;
+}
+
+.greentext {
+color: #009933;
+}
+
+.repnum {
+margin-left: 12px;
+}

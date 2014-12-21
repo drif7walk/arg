@@ -1,0 +1,176 @@
+<?php
+
+include_once("../desas.php");
+$conn = establish();
+
+        $repid = "0";
+
+        if (isset($_GET["repid"]))
+               $repid= (is_numeric($_GET["repid"]) ? $_GET["repid"] : "0");
+
+	$rep = "";
+	foreach($conn->query('SELECT * FROM changelog ORDER BY id DESC LIMIT 3') as $row) {
+		$rep .= "<div>";
+		$rep .= str_replace("-","/",$row["date"]);
+		$rep .= " ".$row["text"];
+		$rep .= "</div>";
+	}
+
+	$__changelog__ = $rep;
+
+	$s = "__posts__";
+	$rep ="";
+
+        $q = "";
+        if ($repid == "0")
+        {
+            $q = 'SELECT * FROM `posts` WHERE `replyto`="0" ORDER BY `date` DESC LIMIT 25';
+            $qr = $conn->prepare($q);
+        }
+        else
+        {
+            $q = 'SELECT * FROM `posts` WHERE (`replyto`=0 AND `id`=:rep) OR `replyto`=:replyto ORDER BY `id` ASC';
+            $qr = $conn->prepare($q);
+            $qr->bindValue(":replyto", $repid, PDO::PARAM_INT);
+            $qr->bindValue(":rep", $repid, PDO::PARAM_INT);
+        }
+        
+        $qr->execute();
+        $r = $qr->fetchAll();
+
+	foreach( $r as $row) {
+
+		$rep .= '<div class="replybox">';
+		$rep .= '<span style="font-size: small; font-color: #545454">'.$row["date"].'</span>';
+
+                if ($row["replyto"] == "0")
+                        $rep .= '<span><a href="index.php?repid='.$row["id"].'"> #'.$row["id"].'</a></span>';
+                else
+                        $rep .= '<span><a name="'.$row["id"].'" href="#'.$row["id"].'">#'.$row["id"].'</a></span>';
+
+                $st = 'SELECT * FROM `posts` WHERE `replyto`=:replyto';
+                $qrq = $conn->prepare($st);
+                $qrq->bindValue(":replyto", $row["id"], PDO::PARAM_INT);
+                $qrq->execute();
+                $rw = $qrq->rowCount();
+                $rep .= ' '.$rw.' replikas';
+                
+		$col = "";
+		$rep .= '<table class="replytable"><tr><td>';
+		/* Original filename */
+	        $rep .= '<div><a href="./uploads/'.$row["imgsrc"].'">'.(strlen($row["imgalt"]) > 14 ? substr($row["imgalt"], 0, 7).'[...]'.substr($row["imgalt"], strrpos($row["imgalt"], '.')) : $row["imgalt"]).'</div>';
+		
+		if (pathinfo($row["imgsrc"], PATHINFO_EXTENSION) != "webm" && $row["imgsrc"] != "0")
+		{
+			$rep .= '<img src="./uploads/'.$row["imgsrc"].'" title="'.$row["imgalt"].'" class="image"/>';
+		}
+		 /* Webm */ 
+		else if (pathinfo($row["imgsrc"], PATHINFO_EXTENSION) == "webm")
+		{
+
+			
+			/* Embed .webm */
+			$rep .= '<video class="video" title="'.$row["imgalt"].'" controls><source src="./uploads/'.$row["imgsrc"].'" type="video/webm" ></video>';
+			/* Stop embed webm */
+
+		} else if ($row["imgsrc"] == "0") /* No picture */
+		{
+			$rep .= "";
+		}
+ //number of replis
+                $rep .= '</td><td>'.nl2br($row["content"]).'</td></tr>';
+		$rep .= '</table><span style="font-size: x-small; font-color: #545454">'.$row["tags"].'</span></div>';
+	}	
+
+	$__posts__ = $rep;
+
+        $s = "__checkboxes__";
+	$rep = "";
+	
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+	<meta charset="utf-8" />
+	<title>bezsakars</title>
+	<link rel="icon" type="image/ico" href="fav.ico"/>
+	<link href="./style/basic.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<?php
+if ($repid != "0")
+{
+?>
+<a href="."><<</a>
+<?php
+}
+?>
+<form action="post.php" method="post" enctype="multipart/form-data">
+<div style="width: 480px; margin-left: auto; margin-right: auto;">
+<table class="postbox"  >
+	
+	<tr>
+		<td><textarea class="textarea" name="content" placeholder="2048 burti max."></textarea></td>
+	</tr>
+<!--
+	<tr>
+		<td>
+			<span style="border-bottom: 3px solid; border-color: #CCCCCC;"><input type="text" name="tags" style="width: 99%" placeholder="tags netags birka"></span>
+		</td>
+	</tr>
+-->
+         <tr>
+		<td style="font-size: small;">Ieraksti "pelmeni":<input type="text" name="alanpls" placeholder="pelmeni"></td>
+	</tr>
+	<tr>
+	<td> <input type="file" name="img" /> <span style="font-size: xx-small; float: right;">8MB: WEBM; JPG; PNG; GIF<input type="submit" value="Likt"/>v1.7</span><input type="hidden" name="repid" value="<?php echo $repid; ?>"></td>
+	</tr>
+</table>
+</div>
+</form>
+<!--
+<form action="." method="POST">
+<table>
+<tr>
+	<td>Birku filtri</td>
+	<td>
+		<span style="border-bottom: 3px solid; border-color: #CCCCCC;"><input type="checkbox" name="filter" value="#" checked="">Bez</span>
+	</td>
+	<td>
+				<span  style="border-bottom: 3px solid; border-color: #99CCFF;"><input type="checkbox" name="filter" value="v" >Datorspēles</span>
+	</td>
+	<td>
+				<span style="border-bottom: 3px solid; border-color: #FFFF99;"><input type="checkbox" name="filter" value="tv" >Filmas</span>
+	</td>
+	<td>
+				<span style="border-bottom: 3px solid; border-color: #99FF66;"><input type="checkbox" name="filter" value="g">Tehnoloģija</span>
+	</td>
+	<td>
+				<span style="border-bottom: 3px solid; border-color: #FFCCFF;"><input type="checkbox" name="filter" value="gd">Grafiskais Dizains</span>
+	</td>
+</tr>
+</table>
+</form>
+-->
+<div class="about">
+
+<?php echo $__changelog__; ?>
+
+</div>
+
+<div id="posts" style="width: 480px; margin-left: auto; margin-right: auto;">
+
+
+<?php echo $__posts__; ?>
+
+
+</div>
+
+</body>
+
+</html> 
